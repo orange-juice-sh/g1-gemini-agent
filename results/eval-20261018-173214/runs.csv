@@ -1,0 +1,4 @@
+model,task,kind,trial,model_id,success,sim_time_s,wall_time_s,fallen,safety_stops,cost_usd,final_text,api_calls,tool_calls,mean_latency_s,input_tokens,cache_read_tokens,output_tokens,safety_retries
+qwen,T11,視覚,0,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,False,18.5,3.7,False,1,0.0,床に青い箱が1つあります。他の箱は見当たりません。休憩スペースの床に小さな箱は1つです。,5,4,0.4,16228,0,171,1
+qwen,T11,視覚,1,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,False,22.4,4.4,False,1,0.0,休憩スペースの床に小さな箱が1つあることが確認できました。,6,5,0.42,20044,0,214,1
+qwen,T11,視覚,2,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,False,22.4,4.4,False,1,0.0,休憩スペースの床に小さな箱が1つあります。,6,5,0.43,20053,0,213,1

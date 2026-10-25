@@ -1,0 +1,105 @@
+# docker compose up -d --build            開発用コンテナ（dev）
+# docker compose --profile local up -d    ローカルの Qwen3-VL（llm）
+# docker compose --profile tts up -d      音声合成（tts）
+# docker compose --profile lab up -d lab  強化学習（Isaac Lab）
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        UID: ${LOCAL_UID:-1000}
+        GID: ${LOCAL_GID:-1000}
+    image: g1-gemini-agent:dev
+    container_name: g1-gemini-agent-${USER:-dev}
+    volumes:
+      - .:/workspace
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - MUJOCO_GL=egl
+      - LOCAL_LLM_URL=http://llm:8000/v1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # 127.0.0.1 だけに公開する（手元の PC からは ssh -L でポート転送）
+    ports:
+      - "127.0.0.1:${WEBUI_PORT:-8765}:8765"
+    shm_size: 8gb
+    init: true
+    stdin_open: true
+    tty: true
+
+  llm:
+    image: vllm/vllm-openai:latest
+    profiles: [local]
+    container_name: g1-gemini-agent-llm-${USER:-dev}
+    command:
+      - --model
+      - ${LOCAL_LLM_MODEL:-Qwen/Qwen3-VL-30B-A3B-Instruct-FP8}
+      - --max-model-len
+      - "32768"
+      - --gpu-memory-utilization
+      - ${LLM_GPU_MEM:-0.45}
+      - --enable-auto-tool-choice
+      - --tool-call-parser
+      - hermes
+      - --limit-mm-per-prompt
+      - '{"image": 4}'
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+    env_file:
+      - path: .env
+        required: false
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ipc: host
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 60
+      start_period: 120s
+
+  tts:
+    image: voicevox/voicevox_engine:cpu-latest
+    profiles: [tts]
+    container_name: g1-gemini-agent-tts-${USER:-dev}
+
+  lab:
+    image: nvcr.io/nvidia/isaac-lab:2.3.1
+    profiles: [lab]
+    container_name: g1-gemini-agent-lab-${USER:-dev}
+    entrypoint: ["sleep", "infinity"]
+    environment:
+      - ACCEPT_EULA=Y
+      - PRIVACY_CONSENT=Y
+      - LOCAL_UID=${LOCAL_UID:-1000}
+      - LOCAL_GID=${LOCAL_GID:-1000}
+    volumes:
+      - .:/project
+      - isaac-cache:/root/.cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    shm_size: 8gb
+
+volumes:
+  hf-cache:
+  isaac-cache:

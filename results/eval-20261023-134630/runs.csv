@@ -1,0 +1,21 @@
+model,task,kind,trial,model_id,success,sim_time_s,wall_time_s,fallen,safety_stops,cost_usd,final_text,api_calls,tool_calls,mean_latency_s,input_tokens,cache_read_tokens,output_tokens,safety_retries
+qwen,D1,デモ,0,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,68.9,14.5,False,1,0.0,休憩スペースにあった赤い四角い物体を受付に届けました。,18,17,0.54,77256,0,605,0
+qwen,D1,デモ,1,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,False,29.6,19.9,False,1,0.0,,30,30,0.58,149296,0,1204,0
+qwen,D1,デモ,2,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,55.3,11.6,False,0,0.0,休憩スペースにあった赤い四角い物体を受付に届けました。,17,16,0.48,71727,0,504,0
+qwen,D1,デモ,3,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,68.9,15.0,False,1,0.0,休憩スペースにあった赤い四角い物体を受付に持って行って、置きました。,19,18,0.55,83976,0,670,0
+qwen,D2,デモ,0,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,False,125.8,21.9,False,13,0.0,,30,30,0.51,155369,0,1193,0
+qwen,D2,デモ,1,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,109.7,12.8,False,4,0.0,休憩スペースにあった青色の丸い物体を受付に運んで置きました。,10,9,0.56,37306,0,425,0
+qwen,D2,デモ,2,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,118.1,13.6,False,5,0.0,休憩スペースにあった青い丸い物体を受付に運び、カウンターの上に置きました。,12,11,0.6,47205,0,570,0
+qwen,D2,デモ,3,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,109.7,11.6,False,4,0.0,休憩スペースにあった青色の丸い物体を受付に運び、カウンターの上に置きました。,10,9,0.61,37495,0,474,0
+qwen,D3,デモ,0,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,9.5,0.9,False,0,0.0,充電ステーションに到着しました。,2,1,0.19,5815,0,33,0
+qwen,D3,デモ,1,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,9.5,0.9,False,0,0.0,充電ステーションに到着しました。,2,1,0.23,5815,0,33,0
+qwen,D3,デモ,2,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,9.5,0.9,False,0,0.0,充電ステーションに到着しました。,2,1,0.21,5815,0,33,0
+qwen,D3,デモ,3,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,9.5,1.0,False,0,0.0,充電ステーションに到着しました。,2,1,0.24,5815,0,33,0
+qwen,D4,デモ,0,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,37.3,3.0,False,0,0.0,エレベーターのスイッチを押した後、充電スペースに戻りました。,4,3,0.3,12052,0,93,0
+qwen,D4,デモ,1,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,37.3,3.2,False,0,0.0,エレベーターのスイッチを押して、再度充電スペースに戻りました。,4,3,0.44,12167,0,150,0
+qwen,D4,デモ,2,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,37.3,2.9,False,0,0.0,エレベーターのスイッチを押した後、充電ステーションに戻りました。,4,3,0.26,12052,0,94,0
+qwen,D4,デモ,3,Qwen/Qwen3-VL-30B-A3B-Instruct-FP8,True,37.3,2.9,False,0,0.0,エレベーターのスイッチを押した後、充電スペースに戻りました。,4,3,0.23,12052,0,93,0
+rule,D1,デモ,0,mock-rule-based,False,50.6,2.5,False,1,0.0,"指示された手順を 14 回の行動で実行しました。探していた物体は (3.94, -5.06) 付近にありました。途中で 5 回の失敗（安全停止など）があり、その都度やり直しました。",15,14,0.0,0,0,0,0
+rule,D2,デモ,0,mock-rule-based,False,45.7,2.3,False,3,0.0,"指示された手順を 8 回の行動で実行しました。探していた物体は (7.82, 2.8) 付近にありました。途中で 2 回の失敗（安全停止など）があり、その都度やり直しました。",9,8,0.0,0,0,0,0
+rule,D3,デモ,0,mock-rule-based,False,0.0,0.0,False,0,0.0,指示された手順を 0 回の行動で実行しました。,1,0,0.0,0,0,0,0
+rule,D4,デモ,0,mock-rule-based,False,0.0,0.0,False,0,0.0,指示された手順を 0 回の行動で実行しました。,1,0,0.0,0,0,0,0

@@ -1,0 +1,10 @@
+mujoco>=3.1
+numpy
+pyyaml
+pillow
+anthropic>=0.40
+imageio>=2.30
+imageio-ffmpeg
+openai>=1.40
+google-genai>=2.31
+matplotlib>=3.8

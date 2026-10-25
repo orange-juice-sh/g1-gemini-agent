@@ -1,0 +1,5 @@
+model,task,kind,trial,model_id,success,sim_time_s,wall_time_s,fallen,safety_stops,cost_usd,final_text,api_calls,tool_calls,mean_latency_s,input_tokens,cache_read_tokens,output_tokens,safety_retries
+er2,T11,視覚,0,gemini-robotics-er-2-preview,True,23.0,53.4,False,1,0.03903,休憩スペースの床には、青、白、黄色の小さな箱が合計3個ありました。,9,8,5.73,34182,0,969,1
+er2,T11,視覚,1,gemini-robotics-er-2-preview,True,23.0,60.9,False,1,0.04569,休憩スペースの床には、白、青、黄色の小さな箱が合計3個あります。,10,9,5.9,39085,0,1320,1
+flash,T11,視覚,0,gemini-3.8-flash,False,30.5,106.5,False,1,0.08005,休憩スペースの床を確認したところ、小さな箱は4個ありました。,17,16,6.14,99394,0,1469,1
+flash,T11,視覚,1,gemini-3.8-flash,True,45.4,179.3,False,1,0.15839,休憩スペースの床には白・黄・赤の箱が3個ありました（会議室前に青が1個）。,26,25,6.78,200798,8852,3672,1

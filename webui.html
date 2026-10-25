@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1 ロビー案内ロボット</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --ink: #14181f; --ink2: #525866; --line: #dde0e6;
+    --accent: #2a78d6; --accent-ink: #ffffff; --ok: #1f8a4c; --ng: #c0392b; --chip: #eef3fb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #111418; --panel: #1b1f26; --ink: #eef0f3; --ink2: #a6adba; --line: #2d333d;
+            --accent: #3987e5; --chip: #232a35; --ok: #3fbf74; --ng: #e66767; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif; }
+  header { padding: 12px 20px; display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 18px; margin: 0; }
+  header span { color: var(--ink2); font-size: 13px; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 16px; padding: 16px; max-width: 1800px; margin: 0 auto; }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  #view { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 8px; display: block; object-fit: contain; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  label { font-size: 13px; color: var(--ink2); }
+  select, textarea, button { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  select { padding: 6px 8px; }
+  textarea { width: 100%; min-height: 84px; padding: 10px; resize: vertical; font-size: 15px; }
+  button { padding: 8px 14px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: bold; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { background: var(--chip); border: none; border-radius: 999px; padding: 4px 10px; font-size: 12px; text-align: left; }
+  #status { font-size: 13px; color: var(--ink2); margin-top: 8px; min-height: 1.4em; }
+  #status.busy::before { content: "● "; color: var(--accent); }
+  #history { margin-top: 12px; display: flex; flex-direction: column-reverse; gap: 10px; max-height: 52vh; overflow-y: auto; }
+  .item { border-top: 1px solid var(--line); padding-top: 8px; font-size: 13px; }
+  .item .ins { font-weight: bold; font-size: 14px; }
+  .item ol { margin: 6px 0; padding-left: 20px; color: var(--ink2); }
+  .item li.ng { color: var(--ng); }
+  .item .rep { background: var(--chip); border-radius: 6px; padding: 6px 8px; }
+  .meta { color: var(--ink2); font-size: 12px; margin-top: 4px; }
+  #rec.on { background: var(--ng); color: #fff; border-color: var(--ng); }
+  h2 { font-size: 15px; margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>G1 ロビー案内ロボット</h1>
+  <span>日本語で指示すると、AI が考えて MuJoCo 上の Unitree G1 が動きます</span>
+</header>
+<main>
+  <section class="panel">
+    <img id="view" src="/stream.mjpg" alt="シミュレーションの映像">
+    <div class="row">
+      <label>ロビー <select id="scene"></select></label>
+      <button id="reset">初期化</button>
+      <label>映像の速さ <select id="speed"><option value="1">実時間</option><option value="2">2倍</option><option value="4">4倍</option></select></label>
+      <button id="rec">● 録画</button>
+      <span id="recinfo" class="meta"></span>
+    </div>
+  </section>
+  <section class="panel">
+    <h2>指示を出す</h2>
+    <textarea id="text" placeholder="例：受付に行って、誰かいるか確認してください（Ctrl + Enter で送信）"></textarea>
+    <div class="chips" id="examples"></div>
+    <div class="row">
+      <label>頭脳 <select id="model"></select></label>
+      <button class="primary" id="send">送信</button>
+      <label><input type="checkbox" id="voice" checked> 音声を再生</label>
+    </div>
+    <div id="status"></div>
+    <div id="history"></div>
+  </section>
+</main>
+<script>
+const MODELS = __MODELS__, SCENES = __SCENES__, EXAMPLES = __EXAMPLES__;
+const $ = (id) => document.getElementById(id);
+for (const [v, t] of MODELS) $("model").add(new Option(t, v));
+for (const [v, t] of SCENES) $("scene").add(new Option(t, v));
+for (const ex of EXAMPLES) {
+  const b = document.createElement("button"); b.className = "chip"; b.textContent = ex;
+  b.onclick = () => { $("text").value = ex; $("text").focus(); };
+  $("examples").appendChild(b);
+}
+const post = (url, body) => fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)})
+  .then(async (r) => { if (!r.ok) { const j = await r.json().catch(() => ({})); alert(j.error || "エラー"); } });
+$("send").onclick = () => {
+  const text = $("text").value.trim(); if (!text) return;
+  post("/api/instruct", {text, model: $("model").value}); $("text").value = "";
+};
+$("text").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) $("send").click(); });
+$("reset").onclick = () => { if (confirm("ロビーとロボットを初期状態に戻します。よろしいですか？")) post("/api/reset", {scene: $("scene").value}); };
+$("speed").onchange = () => post("/api/speed", {speed: Number($("speed").value)});
+let recording = false;
+$("rec").onclick = () => post("/api/record", {on: !recording});
+
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+let lastSpeech = null, lastHist = "";
+async function poll() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    $("send").disabled = s.busy || !s.ready; $("reset").disabled = s.busy;
+    $("status").className = s.busy ? "busy" : "";
+    $("status").textContent = !s.ready ? "シミュレーションを準備しています…" : s.busy ? (s.caption || "考えています…") : (s.error || "指示を入力してください");
+    if (document.activeElement !== $("scene")) $("scene").value = s.scene;
+    recording = !!s.recording; $("rec").classList.toggle("on", recording);
+    $("rec").textContent = recording ? "■ 録画を止める" : "● 録画"; $("recinfo").textContent = recording ? s.recording : "";
+    const h = JSON.stringify(s.history);
+    if (h !== lastHist) {
+      lastHist = h;
+      const label = Object.fromEntries(MODELS);
+      $("history").innerHTML = s.history.map((e) => `
+        <div class="item">
+          <div class="ins">「${esc(e.instruction)}」</div>
+          <ol>${e.steps.map((st) => `<li class="${st.ok === false ? "ng" : ""}" title="${esc(st.msg)}">${esc(st.label)}${st.ok === false ? "（失敗：" + esc(st.msg.slice(0, 40)) + "…）" : ""}</li>`).join("")}</ol>
+          ${e.report ? `<div class="rep">${esc(e.report)}</div>` : ""}
+          <div class="meta">${esc(label[e.model] || e.model)}${e.latency_s != null ? `・平均応答 ${e.latency_s} 秒` : ""}${e.cost_usd ? `・API 費用 約 $${e.cost_usd.toFixed(3)}（約 ${Math.round(e.cost_usd * 150)} 円）` : ""}${e.fallen ? "・転倒" : ""}</div>
+        </div>`).join("");
+    }
+    if (lastSpeech === null) lastSpeech = s.speech_id;
+    if (s.speech_id > lastSpeech) {
+      lastSpeech = s.speech_id;
+      if ($("voice").checked) new Audio(`/api/speech/${s.speech_id}.wav`).play().catch(() => {});
+    }
+  } catch (e) { $("status").textContent = "サーバーに接続できません"; }
+  setTimeout(poll, 600);
+}
+poll();
+</script>
+</body>
+</html>

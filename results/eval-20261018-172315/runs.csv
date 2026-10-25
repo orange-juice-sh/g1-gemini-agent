@@ -1,0 +1,4 @@
+model,task,kind,trial,model_id,success,sim_time_s,wall_time_s,fallen,safety_stops,cost_usd,final_text,api_calls,tool_calls,mean_latency_s,input_tokens,cache_read_tokens,output_tokens,safety_retries
+argon,T11,視覚,0,gemini-4-argon,True,24.2,324.0,False,1,0.0589,休憩スペースを確認したところ、床に青・白・黄色の小さな箱が合計3個ありました。,9,8,35.8,35659,8579,388,1
+argon,T11,視覚,1,gemini-4-argon,False,28.1,279.7,False,1,0.08409,休憩スペースの床を確認したところ、青・白・黄・赤の小さな箱が合計4個ありました。,13,12,21.35,67125,29294,550,1
+argon,T11,視覚,2,gemini-4-argon,False,28.9,355.5,False,1,0.1002,休憩スペースの床を確認したところ、青・白・黄・赤の小さな箱が合計4個ありました。,15,14,23.57,86478,41311,573,1

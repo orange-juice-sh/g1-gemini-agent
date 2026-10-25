@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G1 ライブ映像</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #view { width: 100vw; height: 100vh; object-fit: contain; display: block; }
+  #sound { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 22px; font-size: 18px;
+           border-radius: 10px; border: none; background: #2a78d6; color: #fff; cursor: pointer;
+           font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif; }
+</style>
+</head>
+<body>
+<img id="view" src="/stream.mjpg" alt="G1 のライブ映像">
+<button id="sound">クリックして音声をオンにする</button>
+<script>
+// ブラウザは操作がないと音を鳴らせないので、最初に1回クリックしてもらう
+let enabled = false, last = null;
+document.getElementById("sound").onclick = (e) => { enabled = true; e.target.remove(); };
+async function poll() {
+  try {
+    const s = await (await fetch("/api/state")).json();
+    if (last === null) last = s.speech_id;
+    if (s.speech_id > last) { last = s.speech_id; if (enabled) new Audio(`/api/speech/${s.speech_id}.wav`).play().catch(() => {}); }
+  } catch (e) {}
+  setTimeout(poll, 400);
+}
+poll();
+</script>
+</body>
+</html>

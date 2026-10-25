@@ -1,0 +1,24 @@
+# API キーを公開リポジトリに含めない
+.env
+
+__pycache__/
+*.pyc
+.venv/
+logs/
+videos/
+results/*.csv
+MUJOCO_LOG.TXT
+assets/
+lab/assets/
+lab/logs/
+lab/exported/squat_test.npz
+# しゃがむ学習の途中のモデル・Hydra のログ・切り替えの状態（scripts/collect_handoff_states.py で作り直せる）
+lab/exported/v*.npz
+lab/outputs/
+lab/handoff_states.npz
+
+# Claude Code 向けの開発メモ（手元にだけ置く）
+CLAUDE.md
+
+# 提出用レポート（omnicampus に提出。リポジトリには入れない）
+docs/
